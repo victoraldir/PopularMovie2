@@ -84,11 +84,14 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
             msg = String.format(getString(R.string.snackbar_remove_favorite_message), movie.getString(1));
         }
 
-        Snackbar.make(coordinatorLayout, msg, Snackbar.LENGTH_LONG).show();
+        showMessage(msg);
 
         movie.close();
 
+    }
 
+    public void showMessage(String msg){
+        Snackbar.make(coordinatorLayout, msg, Snackbar.LENGTH_LONG).show();
     }
 
     public void hiddenDetail(boolean flag) {

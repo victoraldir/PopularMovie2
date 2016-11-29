@@ -263,6 +263,13 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
+        if(data == null || data.getCount() == 0 && !isOnline(getContext())){
+            if (mSwipeRefreshLayout.isShown())
+                mSwipeRefreshLayout.setRefreshing(false);
+            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_internet_connection));
+            return;
+        }
+
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
 
@@ -271,6 +278,10 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         if (data == null || data.getCount() == 0 && !orderPref.equals(getString(R.string.pref_sort_favorite_value)) && !mSwipeRefreshLayout.isShown()) {
             onSwipeRefresh();
             return;
+        }
+
+        if (data == null || data.getCount() == 0 && orderPref.equals(getString(R.string.pref_sort_favorite_value))) {
+            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_favorites));
         }
 
         mAdapter.swapCursor(data);
