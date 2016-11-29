@@ -9,3 +9,9 @@ To set up your **API KEY**, just place your key into **gradle.properties** file 
 ```gradle
 MOVIEDB_API_KEY="YOUR_API_KEY_HERE"
 ```
+# Screenshots
+
+<img width="45%" src="https://cloud.githubusercontent.com/assets/881964/20695056/4a471d54-b5e1-11e6-86ee-32deb33353af.png" />
+<img width="45%" src="https://cloud.githubusercontent.com/assets/881964/20695225/314109e0-b5e2-11e6-9f7e-7cb1e6d8b28a.png" />
+<img width="90%" src="https://cloud.githubusercontent.com/assets/881964/20695061/4a6196f2-b5e1-11e6-8f66-0a7564fc6046.png"/>
+<img width="90%" src="https://cloud.githubusercontent.com/assets/881964/20695062/4a619abc-b5e1-11e6-9187-167155940445.png" />
