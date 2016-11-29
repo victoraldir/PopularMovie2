@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="grid_column_img">250dp</dimen>
+    <dimen name="details_poster_width">250dp</dimen>
+    <dimen name="details_content_container_margin_left">8dp</dimen>
+    <dimen name="details_content_container_margin_right">0dp</dimen>
+
+</resources>

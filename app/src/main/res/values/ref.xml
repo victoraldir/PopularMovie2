@@ -1,0 +1,4 @@
+<resources>
+
+    <item name="movie_list_content" type="layout">@layout/content_movie_grid</item>
+</resources>

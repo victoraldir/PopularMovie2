@@ -1,0 +1,31 @@
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+    <string name="app_name">Top Movies</string>
+    <string name="title_movie_detail"></string>
+    <string name="action_sort_popularity">Popularity</string>
+    <string name="action_sort_rated">Rated</string>
+    <string name="plot_of_the_movie">Plot of the movie</string>
+    <string name="detail_overview">Synopsis</string>
+
+    <string name="pref_sort_default_value" translatable="false">@string/action_sort_popularity</string>
+    <string name="pref_sort_key" translatable="false">sort</string>
+    <string name="pref_sort_popularity_value" translatable="false">popularity.desc</string>
+    <string name="pref_sort_rate_value" translatable="false">vote_average.desc</string>
+    <string name="pref_sort_favorite_value" translatable="false">favorite</string>
+    <string name="not_connection">Not connected</string>
+    <string name="detail_release">Release date: <xliff:g id="date">%1$s</xliff:g> </string>
+    <string name="detail_rate">Score: <xliff:g id="date">%1$s</xliff:g> </string>
+    <string name="detail_review_author">by: <xliff:g id="date">%1$s</xliff:g> </string>
+    <string name="detail_review_label">Reviews</string>
+    <string name="snackbar_add_favorite_message"><xliff:g id="date">%1$s</xliff:g> added to favorites</string>
+    <string name="snackbar_remove_favorite_message"><xliff:g id="date">%1$s</xliff:g> removed from favorites</string>
+
+
+    <string name="sync_account_type">topratedmovies.quartzo.com</string>
+    <string name="content_authority">com.quartzo.topratedmovies</string>
+    <string name="action_share">Share</string>
+    <string name="action_sort_favorite">Favorites</string>
+    <string name="videos">Videos</string>
+    <string name="my_movie_title">My Movie Title</string>
+
+
+</resources>

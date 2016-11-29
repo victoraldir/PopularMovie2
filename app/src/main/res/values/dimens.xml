@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="item_width">300dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="details_width_poster">200dp</dimen>
+    <dimen name="details_height_poster">250dp</dimen>
+    <dimen name="movie_detail_content_overlay">0dp</dimen>
+
+    <dimen name="details_content_container_margin_left">8dp</dimen>
+    <dimen name="details_content_container_margin_right">8dp</dimen>
+    <dimen name="grid_column_img">150dp</dimen>
+    <dimen name="details_poster_width">130dp</dimen>
+
+</resources>

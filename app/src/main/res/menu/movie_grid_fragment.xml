@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_new_form"
+        android:icon="@mipmap/ic_reorder_white_24dp"
+        android:title=""
+        app:showAsAction="ifRoom">
+
+        <menu>
+            <item
+                android:id="@+id/action_sort_popularity"
+                android:title="@string/action_sort_popularity" />
+            <item
+                android:id="@+id/action_sort_rate"
+                android:title="@string/action_sort_rated" />
+            <item
+                android:id="@+id/action_sort_favorite"
+                android:title="@string/action_sort_favorite" />
+        </menu>
+
+    </item>
+</menu>
