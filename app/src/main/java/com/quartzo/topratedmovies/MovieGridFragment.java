@@ -48,10 +48,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.quartzo.topratedmovies.adapters.ImageAdapter;
 import com.quartzo.topratedmovies.provider.MovieContract;
-import com.quartzo.topratedmovies.sync.MovieSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -111,7 +111,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onResume() {
 
-        getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
+        //getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
 
         super.onResume();
     }
@@ -125,18 +125,23 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
 
 
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
+
+        TextView textViewNoData = (TextView) rootView.findViewById(R.id.fragment_list_movies_no_data);
+        textViewNoData.setText(R.string.no_data);
         GridView gridViewMovies = (GridView) rootView.findViewById(R.id.fragment_list_movies_gridview);
 
         gridViewMovies.setAdapter(mAdapter);
         gridViewMovies.setOnItemClickListener(this);
         gridViewMovies.setNumColumns(GridView.AUTO_FIT);
         gridViewMovies.setOnScrollListener(this);
+        gridViewMovies.setEmptyView(textViewNoData);
+
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                onSwipeRefresh();
+                updateLoader();
             }
         });
 
@@ -157,16 +162,15 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
 
     }
 
-    private void onSwipeRefresh() {
+//    private void onSwipeRefresh() {
+//        MovieSyncAdapter.syncImmediately(getActivity());
+//    }
+
+    private void updateLoader() {
         mSwipeRefreshLayout.setRefreshing(true);
-        updateMovies();
-        getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
-
+        loaderManager.restartLoader(MOVIE_LIST_LOADER, null, this);
     }
 
-    private void updateMovies() {
-        MovieSyncAdapter.syncImmediately(getActivity());
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -179,7 +183,6 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = prefs.edit();
-        LoaderManager lm = getLoaderManager();
 
         switch (item.getItemId()) {
             case R.id.action_sort_popularity:
@@ -190,7 +193,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(true);
 
-                lm.restartLoader(MOVIE_LIST_LOADER, null, this);
+                loaderManager.restartLoader(MOVIE_LIST_LOADER, null, this);
 
                 break;
             case R.id.action_sort_rate:
@@ -201,7 +204,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(true);
 
-                lm.restartLoader(MOVIE_LIST_LOADER, null, this);
+                loaderManager.restartLoader(MOVIE_LIST_LOADER, null, this);
 
                 break;
             case R.id.action_sort_favorite:
@@ -212,7 +215,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(false);
 
-                lm.restartLoader(MOVIE_LIST_LOADER, null, this);
+                loaderManager.restartLoader(MOVIE_LIST_LOADER, null, this);
 
                 break;
         }
@@ -275,11 +278,6 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
 
         String orderPref = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default_value));
 
-        if (data == null || data.getCount() == 0 && !orderPref.equals(getString(R.string.pref_sort_favorite_value)) && !mSwipeRefreshLayout.isShown()) {
-            onSwipeRefresh();
-            return;
-        }
-
         if (data == null || data.getCount() == 0 && orderPref.equals(getString(R.string.pref_sort_favorite_value))) {
             ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_favorites));
         }
@@ -312,7 +310,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
             previousTotal = totalItemCount;
             currentPage++;
-            onSwipeRefresh();
+            updateLoader();
         }
     }
 

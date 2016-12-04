@@ -130,7 +130,8 @@ public class MovieProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        //retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        retCursor.setNotificationUri(getContext().getContentResolver(), MovieContract.MovieEntry.CONTENT_URI);
 
         return retCursor;
     }
@@ -225,10 +226,11 @@ public class MovieProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
         switch (match) {
             case MOVIES:
                 db.beginTransaction();
-                int returnCount = 0;
+
                 try {
                     for (ContentValues value : values) {
 
@@ -258,11 +260,10 @@ public class MovieProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
-            default:
-                return super.bulkInsert(uri, values);
+
         }
+
+        return returnCount;
     }
 
     // You do not need to call this method. This is a method specifically to assist the testing

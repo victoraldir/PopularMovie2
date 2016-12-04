@@ -6,7 +6,7 @@
     <string name="plot_of_the_movie">Plot of the movie</string>
     <string name="detail_overview">Synopsis</string>
 
-    <string name="pref_sort_default_value" translatable="false">@string/action_sort_popularity</string>
+    <string name="pref_sort_default_value" translatable="false">@string/pref_sort_popularity_value</string>
     <string name="pref_sort_key" translatable="false">sort</string>
     <string name="pref_sort_popularity_value" translatable="false">popularity.desc</string>
     <string name="pref_sort_rate_value" translatable="false">vote_average.desc</string>
@@ -29,5 +29,9 @@
 
     <string name="no_internet_connection">No internet connection</string>
     <string name="no_favorites">There is no movies as favorite</string>
+
+    <string name="no_data">There is no data to be shown</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Title</string>
 
 </resources>

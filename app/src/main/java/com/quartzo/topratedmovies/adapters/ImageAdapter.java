@@ -53,37 +53,55 @@ public class ImageAdapter extends CursorAdapter {
         return position;
     }
 
+    /**
+     * Cache of the children views for a forecast list item.
+     */
+    public static class ViewHolder {
+        public final DynamicImageView imageView;
+        public final TextView title;
+        public final ImageView favIcon;
+
+        public ViewHolder(View view) {
+
+            imageView = (DynamicImageView) view.findViewById(R.id.movie_grid_imageview);
+            title = (TextView) view.findViewById(R.id.movie_grid_textview_title);
+            favIcon = (ImageView) view.findViewById(R.id.movie_grid_imageview_favorite);
+        }
+    }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
-        View viewRoot = LayoutInflater.from(context).inflate(R.layout.list_item_image_movie, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_image_movie, parent, false);
 
-        return viewRoot;
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+
+        return view;
     }
 
     @Override
     public void bindView(final View view, final Context context, Cursor cursor) {
+
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         final Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
                 .appendPath(IMAGE_SIZE)
                 .appendEncodedPath(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_THUMB)))
                 .build();
 
-        DynamicImageView imageView = (DynamicImageView) view.findViewById(R.id.movie_grid_imageview);
-        TextView title = (TextView) view.findViewById(R.id.movie_grid_textview_title);
-        ImageView favIcon = (ImageView) view.findViewById(R.id.movie_grid_imageview_favorite);
+        viewHolder.title.setText(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE)));
 
-        title.setText(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE)));
 
         boolean flag = cursor.getInt(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE)) == 1;
 
         if (flag) {
-            favIcon.setImageResource(R.drawable.ic_favorite_white_24dp);
+            viewHolder.favIcon.setImageResource(R.drawable.ic_favorite_white_24dp);
         } else {
-            favIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+            viewHolder.favIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         }
 
-        PicassoUtil.executeLoading(context, builtUri.toString(), imageView);
+        PicassoUtil.executeLoading(context, builtUri.toString(), viewHolder.imageView);
 
     }
 

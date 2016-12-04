@@ -42,7 +42,9 @@ import com.quartzo.topratedmovies.data.Movie;
 import com.quartzo.topratedmovies.data.MovieResponse;
 import com.quartzo.topratedmovies.provider.MovieContract;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -54,30 +56,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
-    private static final int TOTAL_PAGES = 500;
-
-    private static final String[] NOTIFY_MOVIE_PROJECTION = new String[]{
-            MovieContract.MovieEntry.COLUMN_MOVIE_POPULARITY,
-            MovieContract.MovieEntry.COLUMN_MOVIE_THUMB,
-            MovieContract.MovieEntry.COLUMN_MOVIE_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_MOVIE_RATE,
-            MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE,
-            MovieContract.MovieEntry.COLUMN_MOVIE_BACKDROP,
-            MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS,
-
-    };
-
+    private static final int TOTAL_PAGES = 5;
+    private static final int UPDATE_GRID_PAGE = 2;
+    private static boolean FLAG_FIRST_TIME = true; // Notify change when
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-    }
-
-    public static void syncImmediately(Context context) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(getSyncAccount(context),
-                context.getString(R.string.content_authority), bundle);
     }
 
     public static Account getSyncAccount(Context context) {
@@ -102,7 +86,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         MovieSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
-        syncImmediately(context);
+        //syncImmediately(context);
     }
 
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
@@ -131,47 +115,45 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             MovieResponse movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_POPULARITY, x);
 
             if (movieResponse != null) {
-                List<Movie> movieListPage = movieResponse.getResults();
-                Vector<ContentValues> cVVector = parsetoVectorContentValuesMovies(movieListPage);
-
-                if (cVVector.size() > 0) {
-
-                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                    cVVector.toArray(cvArray);
-                    getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
-
-                }
+                bulkInsert(new HashSet<>(movieResponse.getResults()));
             }
-        }
 
-        for (int x = 1; x <= TOTAL_PAGES; x++) {
-
-            MovieResponse movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_RATE, x);
+            movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_RATE, x);
 
             if (movieResponse != null) {
-                List<Movie> movieListPage = movieResponse.getResults();
+                bulkInsert(new HashSet<>(movieResponse.getResults()));
+            }
 
-                Vector<ContentValues> cVVector = parsetoVectorContentValuesMovies(movieListPage);
-
-                if (cVVector.size() > 0) {
-
-                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                    cVVector.toArray(cvArray);
-                    getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
-
-                }
+            if(x == UPDATE_GRID_PAGE && FLAG_FIRST_TIME){
+                FLAG_FIRST_TIME = false;
+                getContext().getContentResolver().notifyChange(MovieContract.MovieEntry.CONTENT_URI,null);
             }
         }
 
     }
 
-    private Vector<ContentValues> parsetoVectorContentValuesMovies(List<Movie> movieList) {
+    private void bulkInsert(Set<Movie> movieList){
+        Vector<ContentValues> cVVector = parsetoVectorContentValuesMovies(movieList);
+        ContentValues[] cvArray = null;
+
+        if (cVVector.size() > 0) {
+
+            cvArray = new ContentValues[cVVector.size()];
+            cVVector.toArray(cvArray);
+            getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+
+        }
+    }
+
+    private Vector<ContentValues> parsetoVectorContentValuesMovies(Set<Movie> movieList) {
 
         Vector<ContentValues> cVVector = new Vector<ContentValues>(movieList.size());
 
-        for (int i = 0; i < movieList.size(); i++) {
+        Iterator it = movieList.iterator();
 
-            Movie currMovie = movieList.get(i);
+        while (it.hasNext()) {
+
+            Movie currMovie = (Movie) it.next();
 
             ContentValues movieValues = new ContentValues();
 
@@ -190,5 +172,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         return cVVector;
 
+    }
+
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 }

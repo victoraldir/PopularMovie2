@@ -1,7 +1,9 @@
 package com.quartzo.topratedmovies;
 
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,11 +13,15 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.quartzo.topratedmovies.provider.MovieContract;
+import com.quartzo.topratedmovies.sync.MovieSyncAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +61,8 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
             mTwoPane = true;
 
         }
+
+        MovieSyncAdapter.initializeSyncAdapter(getBaseContext());
 
     }
 
@@ -140,4 +148,21 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
     public void onFragmentInteraction(String title) {
         //getSupportActionBar().setTitle(title);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
 }
