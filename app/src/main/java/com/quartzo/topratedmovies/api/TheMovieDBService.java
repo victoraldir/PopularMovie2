@@ -69,19 +69,13 @@ public class TheMovieDBService {
         return instance;
     }
 
-    public MovieResponse getDiscoverMovies(String sort, int page) {
+    public MovieResponse getDiscoverMovies(String sort, int page) throws IOException {
 
         Call<MovieResponse> call = mService.discoverMovies(sort, page, BuildConfig.THE_MOVIE_DATABASE_API_KEY);
         MovieResponse apiResponse = null;
 
-        try {
-
-            Response<MovieResponse> response = call.execute();
-            apiResponse = response.body();
-
-        } catch (IOException e) {
-
-        }
+        Response<MovieResponse> response = call.execute();
+        apiResponse = response.body();
 
         return apiResponse;
     }

@@ -24,14 +24,10 @@
 
 package com.quartzo.topratedmovies;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -52,13 +48,17 @@ import android.widget.TextView;
 
 import com.quartzo.topratedmovies.adapters.ImageAdapter;
 import com.quartzo.topratedmovies.provider.MovieContract;
+import com.quartzo.topratedmovies.sync.MovieSyncAdapter;
+
+import static com.quartzo.topratedmovies.Utility.getSortOrderPreference;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MovieGridFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>,
-        AbsListView.OnScrollListener {
+        AbsListView.OnScrollListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
     public static final int MOVIE_LIST_LOADER = 0;
     public static final int COL_ID = 0;
     private static final String SELECTED_KEY = "selected_position";
@@ -76,15 +76,9 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     private int mPosition = ListView.INVALID_POSITION;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LoaderManager loaderManager;
+    private TextView textViewNoData;
 
     public MovieGridFragment() {
-    }
-
-    public static boolean isOnline(Context context) {
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override
@@ -126,8 +120,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
 
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
-        TextView textViewNoData = (TextView) rootView.findViewById(R.id.fragment_list_movies_no_data);
-        textViewNoData.setText(R.string.no_data);
+        textViewNoData = (TextView) rootView.findViewById(R.id.fragment_list_movies_no_data);
         GridView gridViewMovies = (GridView) rootView.findViewById(R.id.fragment_list_movies_gridview);
 
         gridViewMovies.setAdapter(mAdapter);
@@ -180,15 +173,10 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-        SharedPreferences.Editor editor = prefs.edit();
-
         switch (item.getItemId()) {
             case R.id.action_sort_popularity:
 
-                editor.putString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popularity_value));
-                editor.commit();
+                Utility.setSortOrderPreference(getActivity(),getString(R.string.pref_sort_popularity_value));
 
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(true);
@@ -198,8 +186,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
                 break;
             case R.id.action_sort_rate:
 
-                editor.putString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_rate_value));
-                editor.commit();
+                Utility.setSortOrderPreference(getActivity(),getString(R.string.pref_sort_rate_value));
 
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(true);
@@ -209,8 +196,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
                 break;
             case R.id.action_sort_favorite:
 
-                editor.putString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_favorite_value));
-                editor.commit();
+                Utility.setSortOrderPreference(getActivity(),getString(R.string.pref_sort_favorite_value));
 
                 hiddenDetailContainer(true);
                 mSwipeRefreshLayout.setEnabled(false);
@@ -234,14 +220,12 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
 
         String sortOrder;
         String selection = null;
         String[] selectionArgs = null;
 
-        String orderPref = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default_value));
+        String orderPref = getSortOrderPreference(getActivity());
 
         if (orderPref.equals(getString(R.string.pref_sort_popularity_value))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_MOVIE_POPULARITY + " DESC";
@@ -266,26 +250,25 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if(data == null || data.getCount() == 0 && !isOnline(getContext())){
-            if (mSwipeRefreshLayout.isShown())
-                mSwipeRefreshLayout.setRefreshing(false);
-            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_internet_connection));
-            return;
-        }
+//        if(data == null || data.getCount() == 0 && !Utility.isNetworkAvailable(getContext())){
+//            if (mSwipeRefreshLayout.isShown())
+//                mSwipeRefreshLayout.setRefreshing(false);
+//            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_internet_connection));
+//            return;
+//        }
 
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-
-        String orderPref = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default_value));
-
-        if (data == null || data.getCount() == 0 && orderPref.equals(getString(R.string.pref_sort_favorite_value))) {
-            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_favorites));
-        }
+//        String orderPref = getSortOrderPreference(getActivity());
+//
+////        if (data == null || data.getCount() == 0 && orderPref.equals(getString(R.string.pref_sort_favorite_value))) {
+////            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_favorites));
+////        }
 
         mAdapter.swapCursor(data);
 
         if (mSwipeRefreshLayout.isShown())
             mSwipeRefreshLayout.setRefreshing(false);
+
+        updateEmptyView();
 
     }
 
@@ -311,6 +294,41 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
             previousTotal = totalItemCount;
             currentPage++;
             updateLoader();
+        }
+    }
+
+    /*
+       Updates the empty list view with contextually relevant information that the user can
+       use to determine why they aren't seeing weather.
+    */
+    private void updateEmptyView() {
+        if ( mAdapter.getCount() == 0 ) {
+           // TextView tv = (TextView) getView().findViewById(R.id.listview_forecast_empty);
+            if ( null != textViewNoData ) {
+                // if cursor is empty, why? do we have an invalid location
+                int message = R.string.empty_movie_list;
+                @MovieSyncAdapter.MovieStatus int location = Utility.getMovieStatus(getActivity());
+                switch (location) {
+                    case MovieSyncAdapter.MOVIE_STATUS_SERVER_DOWN:
+                        message = R.string.empty_movie_list_server_down;
+                        break;
+                    case MovieSyncAdapter.MOVIE_STATUS_SERVER_INVALID:
+                        message = R.string.empty_movie_list_server_error;
+                        break;
+                    default:
+                        if (!Utility.isNetworkAvailable(getActivity()) ) {
+                            message = R.string.empty_movie_list_no_network;
+                        }
+                }
+                textViewNoData.setText(message);
+            }
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if ( key.equals(getString(R.string.pref_movie_status_key)) ) {
+            updateEmptyView();
         }
     }
 

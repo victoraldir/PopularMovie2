@@ -92,6 +92,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private TrailerAdapter mTrailerAdapter;
     private ReviewAdapter mReviewAdapter;
     private ShareActionProvider mShareActionProvider;
+    private MenuItem menushareItem;
     private TheMovieDBService theMovieDBService;
     public Uri mUri;
 
@@ -99,6 +100,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         @Override
         public void onResponse(Call<TrailerResponse> call, Response<TrailerResponse> response) {
             if (response.body() != null && !response.body().getResults().isEmpty()) {
+                menushareItem.setVisible(true);
                 cardViewTrailers.setVisibility(View.VISIBLE);
                 mTrailerAdapter.setTrailers(response.body().getResults());
                 mTrailerAdapter.notifyDataSetChanged();
@@ -174,8 +176,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         inflater.inflate(R.menu.movie_detail_fragment, menu);
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        menushareItem = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menushareItem);
 
     }
 

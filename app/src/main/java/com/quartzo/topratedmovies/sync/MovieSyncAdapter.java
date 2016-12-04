@@ -31,10 +31,14 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
+import android.util.Log;
 
 import com.quartzo.topratedmovies.R;
 import com.quartzo.topratedmovies.api.TheMovieDBService;
@@ -42,6 +46,9 @@ import com.quartzo.topratedmovies.data.Movie;
 import com.quartzo.topratedmovies.data.MovieResponse;
 import com.quartzo.topratedmovies.provider.MovieContract;
 
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -54,11 +61,23 @@ import java.util.Vector;
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
+    private final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
-    private static final int TOTAL_PAGES = 5;
-    private static final int UPDATE_GRID_PAGE = 2;
+    private static final int TOTAL_PAGES = 50;
+    private static final int UPDATE_GRID_PAGE = 4;
     private static boolean FLAG_FIRST_TIME = true; // Notify change when
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MOVIE_STATUS_OK, MOVIE_STATUS_SERVER_DOWN, MOVIE_STATUS_SERVER_INVALID,  MOVIE_STATUS_UNKNOWN})
+    public @interface MovieStatus {}
+
+    public static final int MOVIE_STATUS_OK = 0;
+    public static final int MOVIE_STATUS_SERVER_DOWN = 1;
+    public static final int
+            MOVIE_STATUS_SERVER_INVALID = 2;
+    public static final int
+            MOVIE_STATUS_UNKNOWN = 3;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -112,23 +131,39 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         for (int x = 1; x <= TOTAL_PAGES; x++) {
 
-            MovieResponse movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_POPULARITY, x);
+            try {
 
-            if (movieResponse != null) {
-                bulkInsert(new HashSet<>(movieResponse.getResults()));
-            }
+                MovieResponse movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_POPULARITY, x);
 
-            movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_RATE, x);
+                if (movieResponse != null) {
+                    bulkInsert(new HashSet<>(movieResponse.getResults()));
+                }
 
-            if (movieResponse != null) {
-                bulkInsert(new HashSet<>(movieResponse.getResults()));
-            }
+                movieResponse = movieService.getDiscoverMovies(TheMovieDBService.SORT_RATE, x);
 
-            if(x == UPDATE_GRID_PAGE && FLAG_FIRST_TIME){
-                FLAG_FIRST_TIME = false;
-                getContext().getContentResolver().notifyChange(MovieContract.MovieEntry.CONTENT_URI,null);
+                if (movieResponse != null) {
+                    bulkInsert(new HashSet<>(movieResponse.getResults()));
+                }
+
+                if (x == UPDATE_GRID_PAGE && FLAG_FIRST_TIME) {
+                    FLAG_FIRST_TIME = false;
+                    getContext().getContentResolver().notifyChange(MovieContract.MovieEntry.CONTENT_URI, null);
+                }
+
+                if (movieResponse == null) {
+                    setMovieStatus(getContext(), MOVIE_STATUS_SERVER_DOWN);
+                }
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the weather data, there's no point in attempting
+                // to parse it.
+                setMovieStatus(getContext(), MOVIE_STATUS_SERVER_DOWN);
             }
         }
+
+
+        setMovieStatus(getContext(), MOVIE_STATUS_OK);
 
     }
 
@@ -142,6 +177,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             cVVector.toArray(cvArray);
             getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
 
+            Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
         }
     }
 
@@ -176,5 +212,18 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void initializeSyncAdapter(Context context) {
         getSyncAccount(context);
+    }
+
+    /**
+     * Sets the location status into shared preference.  This function should not be called from
+     * the UI thread because it uses commit to write to the shared preferences.
+     * @param c Context to get the PreferenceManager from.
+     * @param locationStatus The IntDef value to set
+     */
+    static private void setMovieStatus(Context c, @MovieStatus int locationStatus){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor spe = sp.edit();
+        spe.putInt(c.getString(R.string.pref_movie_status_key), locationStatus);
+        spe.commit();
     }
 }
