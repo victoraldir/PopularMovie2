@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -105,7 +106,8 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onResume() {
 
-        //getLoaderManager().restartLoader(MOVIE_LIST_LOADER, null, this);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.registerOnSharedPreferenceChangeListener(this);
 
         super.onResume();
     }
@@ -164,6 +166,13 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         loaderManager.restartLoader(MOVIE_LIST_LOADER, null, this);
     }
 
+
+    @Override
+    public void onPause() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
