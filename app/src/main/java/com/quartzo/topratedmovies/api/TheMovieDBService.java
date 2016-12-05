@@ -24,6 +24,7 @@
 
 package com.quartzo.topratedmovies.api;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.quartzo.topratedmovies.BuildConfig;
 import com.quartzo.topratedmovies.data.MovieResponse;
 import com.quartzo.topratedmovies.data.ReviewResponse;
@@ -31,6 +32,7 @@ import com.quartzo.topratedmovies.data.TrailerResponse;
 
 import java.io.IOException;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,9 +57,15 @@ public class TheMovieDBService {
 
     private TheMovieDBService() {
 
+        // Add the interceptor to OkHttpClient
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addNetworkInterceptor(new StethoInterceptor());
+        OkHttpClient client = builder.build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(API_URL)
+                .client(client)
                 .build();
 
         mService = retrofit.create(ITheMovieDB.class);
