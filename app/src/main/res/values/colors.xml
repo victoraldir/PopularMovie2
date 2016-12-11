@@ -3,5 +3,5 @@
     <color name="colorPrimaryLight">#FFAB91</color> <!-- 200 -->
     <color name="colorPrimary">#FF5722</color> <!-- 500 -->
     <color name="colorPrimaryDark">#E64A19</color> <!-- 700 -->
-    <color name="colorAccent">#FF4081</color> <!-- A200 -->
+    <color name="colorAccent">#DD2C00</color> <!-- A200 -->
 </resources>

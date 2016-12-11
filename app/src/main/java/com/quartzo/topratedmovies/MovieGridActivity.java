@@ -49,7 +49,8 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+        //getSupportActionBar().setTitle(getTitle());
+        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         resolver = getContentResolver();
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
