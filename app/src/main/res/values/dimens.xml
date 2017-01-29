@@ -13,4 +13,6 @@
     <dimen name="grid_column_img">150dp</dimen>
     <dimen name="details_poster_width">130dp</dimen>
 
+
+    <dimen name="padding_text_view">16dp</dimen>
 </resources>

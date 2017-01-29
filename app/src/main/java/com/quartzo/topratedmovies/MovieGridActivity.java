@@ -49,7 +49,6 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle(getTitle());
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         resolver = getContentResolver();
@@ -71,7 +70,15 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
     @OnClick(R.id.fab)
     void onFabClicked() {
 
-        Cursor movie = resolver.query(movieSelectedUri, new String[]{MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE, MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE}, null, null, null);
+        setFavoriteMovie(MovieContract.MovieEntry.getIdFromUri(movieSelectedUri));
+
+    }
+
+    public void setFavoriteMovie(long movieId){
+
+        Uri movieUri = MovieContract.MovieEntry.buildMovieIdUri(movieId);
+
+        Cursor movie = resolver.query(movieUri, new String[]{MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE, MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE}, null, null, null);
 
         movie.moveToNext();
 
@@ -81,7 +88,7 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
 
         contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE, flag ? 0 : 1);
 
-        getContentResolver().update(movieSelectedUri, contentValues, null, null);
+        getContentResolver().update(movieUri, contentValues, null, null);
 
         String msg;
 

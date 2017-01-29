@@ -46,18 +46,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private String TAG_LOG = ImageAdapter.class.getSimpleName();
     private Cursor mCursor;
     private Context mContext;
-    private static ForecastAdapterOnClickHandler mClickHandler;
+    private static ImageAdapterOnClickHandler mClickHandler;
     private View mEmptyView;
+    private FavoriteImageAdapterOnClickHandler mFavOnclickHandler;
 
-    public ImageAdapter(Context context, ForecastAdapterOnClickHandler mClickHandler, View mEmptyView) {
+    public ImageAdapter(Context context, ImageAdapterOnClickHandler mClickHandler,FavoriteImageAdapterOnClickHandler mFavOnclickHandler, View mEmptyView) {
         mContext = context;
         this.mClickHandler = mClickHandler;
         this.mEmptyView = mEmptyView;
+        this.mFavOnclickHandler = mFavOnclickHandler;
     }
-
-//    public ImageAdapter(Context context, Cursor c, int flags) {
-//        super(context, c, flags);
-//    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -96,10 +94,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     }
 
-//    public long getItemId(int position) {
-//        return position;
-//    }
-
     @Override
     public int getItemCount() {
         if ( null == mCursor ) return 0;
@@ -114,11 +108,21 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         public final TextView title;
         public final ImageView favIcon;
 
-        public ViewHolder(View view) {
+        public ViewHolder(final View view) {
             super(view);
             imageView = (DynamicImageView) view.findViewById(R.id.movie_grid_imageview);
+
             title = (TextView) view.findViewById(R.id.movie_grid_textview_title);
             favIcon = (ImageView) view.findViewById(R.id.movie_grid_imageview_favorite);
+
+            favIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCursor.moveToPosition(getAdapterPosition());
+                    mFavOnclickHandler.onClickFavButton(mCursor.getInt(mCursor.getColumnIndexOrThrow(MovieContract.MovieEntry._ID)));
+                }
+            });
+
             itemView.setOnClickListener(this);
         }
 
@@ -126,7 +130,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         public void onClick(View v) {
 
             mCursor.moveToPosition(getAdapterPosition());
-
             mClickHandler.onClick( mCursor.getInt(mCursor.getColumnIndexOrThrow(MovieContract.MovieEntry._ID)));
 
         }
@@ -135,52 +138,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public void swapCursor(Cursor newCursor) {
         mCursor = newCursor;
         notifyDataSetChanged();
+        mEmptyView.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
 
     }
 
-//    @Override
-//    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-//
-//        View view = LayoutInflater.from(context).inflate(R.layout.list_item_image_movie, parent, false);
-//
-//        ViewHolder viewHolder = new ViewHolder(view);
-//        view.setTag(viewHolder);
-//
-//        return view;
-//    }
-
-//    @Override
-//    public void bindView(final View view, final Context context, Cursor cursor) {
-//
-//        ViewHolder viewHolder = (ViewHolder) view.getTag();
-//
-//        final Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
-//                .appendPath(IMAGE_SIZE)
-//                .appendEncodedPath(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_THUMB)))
-//                .build();
-//
-//        viewHolder.title.setText(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE)));
-//
-//
-//        boolean flag = cursor.getInt(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE)) == 1;
-//
-//        if (flag) {
-//            viewHolder.favIcon.setImageResource(R.drawable.ic_favorite_white_24dp);
-//        } else {
-//            viewHolder.favIcon.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-//        }
-//
-//        PicassoUtil.executeLoading(context, builtUri.toString(), viewHolder.imageView);
-//
-//    }
-
-//    @Override
-//    public Object getItem(int position) {
-//
-//        return super.getItem(position);
-//    }
-
-    public static interface ForecastAdapterOnClickHandler {
+    public interface ImageAdapterOnClickHandler {
         void onClick(int movieId);
+    }
+
+    public interface FavoriteImageAdapterOnClickHandler {
+        void onClickFavButton(int movieId);
     }
 }

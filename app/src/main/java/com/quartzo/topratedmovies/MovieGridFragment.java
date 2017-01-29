@@ -58,7 +58,7 @@ import static com.quartzo.topratedmovies.Utility.getSortOrderPreference;
  */
 public class MovieGridFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>,
-        SharedPreferences.OnSharedPreferenceChangeListener, ImageAdapter.ForecastAdapterOnClickHandler {
+        SharedPreferences.OnSharedPreferenceChangeListener, ImageAdapter.ImageAdapterOnClickHandler, ImageAdapter.FavoriteImageAdapterOnClickHandler {
     public static final int MOVIE_LIST_LOADER = 0;
     public static final int COL_ID = 0;
     private static final String SELECTED_KEY = "selected_position";
@@ -124,7 +124,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         textViewNoData = (TextView) rootView.findViewById(R.id.fragment_list_movies_no_data);
         RecyclerView gridViewMovies = (RecyclerView) rootView.findViewById(R.id.fragment_list_movies_gridview);
 
-        mAdapter = new ImageAdapter(getActivity(), this, textViewNoData);
+        mAdapter = new ImageAdapter(getActivity(), this, this, textViewNoData);
 
         gridViewMovies.setAdapter(mAdapter);
 
@@ -154,10 +154,6 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
 //                }
             }
         });
-        //gridViewMovies.setOnItemClickListener(this);
-        //gridViewMovies.setNumColumns(GridView.AUTO_FIT);
-        //gridViewMovies.setOnScrollListener(this);
-        //gridViewMovies.setEmptyView(textViewNoData);
 
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
@@ -287,19 +283,6 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-//        if(data == null || data.getCount() == 0 && !Utility.isNetworkAvailable(getContext())){
-//            if (mSwipeRefreshLayout.isShown())
-//                mSwipeRefreshLayout.setRefreshing(false);
-//            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_internet_connection));
-//            return;
-//        }
-
-//        String orderPref = getSortOrderPreference(getActivity());
-//
-////        if (data == null || data.getCount() == 0 && orderPref.equals(getString(R.string.pref_sort_favorite_value))) {
-////            ((MovieGridActivity) getActivity()).showMessage(getString(R.string.no_favorites));
-////        }
-
         mAdapter.swapCursor(data);
 
         if (mSwipeRefreshLayout.isShown())
@@ -315,29 +298,6 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     }
 
 
-//    @Override
-//    public void onScrollStateChanged(AbsListView view, int scrollState) {
-//
-//    }
-//
-//    @Override
-//    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//
-//        if (totalItemCount == previousTotal) {
-//            return;
-//        }
-//
-//        if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
-//            previousTotal = totalItemCount;
-//            currentPage++;
-//            updateLoader();
-//        }
-//    }
-
-    /*
-       Updates the empty list view with contextually relevant information that the user can
-       use to determine why they aren't seeing weather.
-    */
     private void updateEmptyView() {
         if ( mAdapter.getItemCount() == 0 ) {
            // TextView tv = (TextView) getView().findViewById(R.id.listview_forecast_empty);
@@ -375,6 +335,11 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         ((Callback) getActivity())
                 .onItemSelected(MovieContract.MovieEntry
                         .buildMovieIdUri(movieId));
+    }
+
+    @Override
+    public void onClickFavButton(int movieId) {
+        ((MovieGridActivity) getActivity()).setFavoriteMovie(movieId);
     }
 
     /**
