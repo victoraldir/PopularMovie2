@@ -35,15 +35,15 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -58,8 +58,7 @@ import static com.quartzo.topratedmovies.Utility.getSortOrderPreference;
  */
 public class MovieGridFragment extends Fragment implements AdapterView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor>,
-        AbsListView.OnScrollListener,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener, ImageAdapter.ForecastAdapterOnClickHandler {
     public static final int MOVIE_LIST_LOADER = 0;
     public static final int COL_ID = 0;
     private static final String SELECTED_KEY = "selected_position";
@@ -78,6 +77,7 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LoaderManager loaderManager;
     private TextView textViewNoData;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
 
     public MovieGridFragment() {
     }
@@ -116,20 +116,48 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mAdapter = new ImageAdapter(getActivity(), null, 0);
         loaderManager = getLoaderManager();
 
 
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
         textViewNoData = (TextView) rootView.findViewById(R.id.fragment_list_movies_no_data);
-        GridView gridViewMovies = (GridView) rootView.findViewById(R.id.fragment_list_movies_gridview);
+        RecyclerView gridViewMovies = (RecyclerView) rootView.findViewById(R.id.fragment_list_movies_gridview);
+
+        mAdapter = new ImageAdapter(getActivity(), this, textViewNoData);
 
         gridViewMovies.setAdapter(mAdapter);
-        gridViewMovies.setOnItemClickListener(this);
-        gridViewMovies.setNumColumns(GridView.AUTO_FIT);
-        gridViewMovies.setOnScrollListener(this);
-        gridViewMovies.setEmptyView(textViewNoData);
+
+        staggeredGridLayoutManager =new StaggeredGridLayoutManager(getResources().getInteger(R.integer.grid_span), 1);
+
+        gridViewMovies.setLayoutManager(staggeredGridLayoutManager);
+        //View emptyView = rootView.findViewById(R.id.recyclerview_forecast_empty);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        gridViewMovies.setHasFixedSize(true);
+        gridViewMovies.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+//TODO
+//                totalItemCount = staggeredGridLayoutManager.getItemCount();
+//
+//                if (totalItemCount == previousTotal) {
+//                    return;
+//                }
+//
+//                if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
+//                    previousTotal = totalItemCount;
+//                    currentPage++;
+//                    updateLoader();
+//                }
+            }
+        });
+        //gridViewMovies.setOnItemClickListener(this);
+        //gridViewMovies.setNumColumns(GridView.AUTO_FIT);
+        //gridViewMovies.setOnScrollListener(this);
+        //gridViewMovies.setEmptyView(textViewNoData);
 
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_layout);
@@ -287,31 +315,31 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
     }
 
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-        if (totalItemCount == previousTotal) {
-            return;
-        }
-
-        if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
-            previousTotal = totalItemCount;
-            currentPage++;
-            updateLoader();
-        }
-    }
+//    @Override
+//    public void onScrollStateChanged(AbsListView view, int scrollState) {
+//
+//    }
+//
+//    @Override
+//    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//
+//        if (totalItemCount == previousTotal) {
+//            return;
+//        }
+//
+//        if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
+//            previousTotal = totalItemCount;
+//            currentPage++;
+//            updateLoader();
+//        }
+//    }
 
     /*
        Updates the empty list view with contextually relevant information that the user can
        use to determine why they aren't seeing weather.
     */
     private void updateEmptyView() {
-        if ( mAdapter.getCount() == 0 ) {
+        if ( mAdapter.getItemCount() == 0 ) {
            // TextView tv = (TextView) getView().findViewById(R.id.listview_forecast_empty);
             if ( null != textViewNoData ) {
                 // if cursor is empty, why? do we have an invalid location
@@ -339,6 +367,14 @@ public class MovieGridFragment extends Fragment implements AdapterView.OnItemCli
         if ( key.equals(getString(R.string.pref_movie_status_key)) ) {
             updateEmptyView();
         }
+    }
+
+    @Override
+    public void onClick(int movieId) {
+
+        ((Callback) getActivity())
+                .onItemSelected(MovieContract.MovieEntry
+                        .buildMovieIdUri(movieId));
     }
 
     /**

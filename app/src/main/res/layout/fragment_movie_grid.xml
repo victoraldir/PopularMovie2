@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--
         <GridView
             android:id="@+id/fragment_list_movies_gridview"
             android:layout_width="match_parent"
@@ -23,7 +24,12 @@
             android:horizontalSpacing="8dp"
             android:numColumns="auto_fit"
             android:verticalSpacing="8dp" />
-
+-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_list_movies_gridview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView

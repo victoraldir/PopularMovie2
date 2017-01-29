@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -151,7 +152,7 @@ public class MovieProviderTest {
     }
 
     @Test
-    public void testBulkInsertionMovie() {
+    public void testBulkInsertionMovie() throws IOException {
 
         List<Movie> movieListPage1 = TheMovieDBService.getInstance().getDiscoverMovies(TheMovieDBService.SORT_POPULARITY, 1).getResults();
 

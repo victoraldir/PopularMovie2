@@ -31,6 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -66,7 +67,7 @@ public class TheMovieDBServiceTest {
     }
 
     @Test
-    public void shouldDiscoverMoviesSynchronously() {
+    public void shouldDiscoverMoviesSynchronously() throws IOException {
 
         long start = System.currentTimeMillis();
 
