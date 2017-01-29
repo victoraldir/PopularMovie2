@@ -14,6 +14,7 @@
         android:layout_marginRight="@dimen/details_content_container_margin_right"
         android:layout_marginStart="@dimen/details_content_container_margin_left"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         card_view:cardCornerRadius="4dp">
 
         <LinearLayout
@@ -34,8 +35,8 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="16dp"
                     android:text="Bagu: The history of a monkey"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                    android:textSize="34sp"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -86,7 +87,8 @@
         android:layout_marginLeft="@dimen/details_content_container_margin_left"
         android:layout_marginRight="@dimen/details_content_container_margin_right"
         android:layout_marginStart="@dimen/details_content_container_margin_left"
-        android:layout_marginTop="8dp"
+
+        android:layout_marginBottom="8dp"
         card_view:cardCornerRadius="4dp">
 
         <LinearLayout
@@ -127,7 +129,8 @@
         android:layout_marginLeft="@dimen/details_content_container_margin_left"
         android:layout_marginRight="@dimen/details_content_container_margin_right"
         android:layout_marginStart="@dimen/details_content_container_margin_left"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
         android:visibility="gone"
         card_view:cardCornerRadius="4dp">
 
@@ -172,7 +175,8 @@
         android:layout_marginLeft="@dimen/details_content_container_margin_left"
         android:layout_marginRight="@dimen/details_content_container_margin_right"
         android:layout_marginStart="@dimen/details_content_container_margin_left"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
         android:visibility="gone"
         card_view:cardCornerRadius="4dp">
 

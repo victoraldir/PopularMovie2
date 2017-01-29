@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.quartzo.topratedmovies.provider.MovieContract;
 import com.quartzo.topratedmovies.sync.MovieSyncAdapter;
@@ -45,26 +46,28 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_grid);
 
-        ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
+            ButterKnife.bind(this);
 
-        resolver = getContentResolver();
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        detailContent = (FrameLayout) findViewById(R.id.movie_detail_container);
+            resolver = getContentResolver();
+            coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
-        if (findViewById(R.id.movie_detail_container) != null) {
+            detailContent = (FrameLayout) findViewById(R.id.movie_detail_container);
 
-            mTwoPane = true;
+            if (findViewById(R.id.movie_detail_container) != null) {
 
+                mTwoPane = true;
+
+            }
+
+            MovieSyncAdapter.initializeSyncAdapter(getBaseContext());
         }
 
-        MovieSyncAdapter.initializeSyncAdapter(getBaseContext());
 
-    }
 
     @Optional
     @OnClick(R.id.fab)
@@ -90,17 +93,18 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
 
         getContentResolver().update(movieUri, contentValues, null, null);
 
-        String msg;
+        if(fab != null) {
 
-        if (!flag) {
-            fab.setImageResource(R.drawable.ic_favorite_white_24dp);
-            msg = String.format(getString(R.string.snackbar_add_favorite_message), movie.getString(1));
-        } else {
-            fab.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-            msg = String.format(getString(R.string.snackbar_remove_favorite_message), movie.getString(1));
+            if (!flag) {
+                fab.setImageResource(R.drawable.ic_favorite_white_24dp);
+            } else {
+                fab.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+            }
+
         }
 
-        showMessage(msg);
+        showMessage(flag ? String.format(getString(R.string.snackbar_add_favorite_message), movie.getString(1)) :
+                String.format(getString(R.string.snackbar_remove_favorite_message), movie.getString(1)));
 
         movie.close();
 
@@ -159,18 +163,30 @@ public class MovieGridActivity extends AppCompatActivity implements MovieGridFra
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the options menu from XML
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
 
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
 
         return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Toast.makeText(this,query,Toast.LENGTH_SHORT).show();
+
+        }
+
     }
 
 }
