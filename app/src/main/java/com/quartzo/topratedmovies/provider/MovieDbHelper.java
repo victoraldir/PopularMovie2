@@ -48,7 +48,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
 
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY," +
+                MovieEntry._ID + " INTEGER PRIMARY KEY ON CONFLICT REPLACE," +
                 MovieEntry.COLUMN_MOVIE_BACKDROP + " TEXT, " +
                 MovieEntry.COLUMN_MOVIE_ORIGINAL_TITTLE + " TEXT, " +
                 MovieEntry.COLUMN_MOVIE_RATE + " REAL, " +

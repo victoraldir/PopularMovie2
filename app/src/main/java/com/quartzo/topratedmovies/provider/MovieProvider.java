@@ -239,18 +239,9 @@ public class MovieProvider extends ContentProvider {
                         Cursor cursor = db.rawQuery("SELECT 1 FROM " + MovieContract.MovieEntry.TABLE_NAME +
                                 " WHERE " + MovieContract.MovieEntry._ID + " = ?", new String[]{id});
 
-                        boolean isPersisted = cursor.moveToNext();
-
                         cursor.close();
 
-                        long _id;
-
-                        if (isPersisted) {
-                            value.remove(MovieContract.MovieEntry.COLUMN_MOVIE_FLAG_FAVORITE); //Avoid changing flag set by user
-                            _id = db.update(MovieContract.MovieEntry.TABLE_NAME, value, MovieContract.MovieEntry._ID + " =?", new String[]{id});
-                        } else {
-                            _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
-                        }
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
 
                         if (_id != -1) {
                             returnCount++;
