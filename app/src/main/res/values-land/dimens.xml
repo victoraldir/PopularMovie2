@@ -4,6 +4,8 @@
     <dimen name="details_content_container_margin_left">36dp</dimen>
     <dimen name="details_content_container_margin_right">36dp</dimen>
 
+    <dimen name="movie_detail_content_overlay">96dp</dimen>
+
     <dimen name="details_poster_width">170dp</dimen>
 
     <dimen name="movie_grid_width_poster">200dp</dimen>

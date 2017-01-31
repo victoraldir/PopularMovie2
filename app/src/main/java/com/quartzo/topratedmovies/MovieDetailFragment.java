@@ -1,9 +1,11 @@
 package com.quartzo.topratedmovies;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.quartzo.topratedmovies.adapters.ReviewAdapter;
@@ -86,6 +89,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @BindView(R.id.detail_recycler_reviews) RecyclerView recycleReviews;
     @BindView(R.id.detail_card_trailers) CardView cardViewTrailers;
     @BindView(R.id.detail_card_reviews) CardView cardViewReviews;
+    @BindView(R.id.detail_linearlayout_contatiner) LinearLayout linearLayoutContainer;
 
     private ImageView backDrop;
     private OnFragmentInteractionListener mListener;
@@ -147,6 +151,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

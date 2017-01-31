@@ -10,6 +10,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
+
 
 /**
  * An activity representing a single Movie detail screen. This
@@ -36,6 +38,15 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
+//    @BindView(R.id.parallax_bar)
+//    CollapsingToolbarLayout collapsingToolbarLayout;
+
+    @BindView(R.id.movie_detail_container)
+    NestedScrollView nestedScrollView;
+
     private ContentResolver resolver;
     private CoordinatorLayout coordinatorLayout;
 
@@ -50,21 +61,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         resolver = getContentResolver();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            });
-        }
-
+        initToolbar();
 
         if (savedInstanceState == null) {
 
@@ -113,6 +110,24 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     }
 
+    private void initToolbar() {
+
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+        }
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -128,4 +143,5 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     public void onFragmentInteraction(String title) {
         getSupportActionBar().setTitle(title);
     }
+
 }
